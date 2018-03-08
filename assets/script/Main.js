@@ -27,6 +27,8 @@ cc.Class({
         //         this._bar = value;
         //     }
         // },
+
+        uiGp:cc.Graphics,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -34,8 +36,27 @@ cc.Class({
     // onLoad () {},
 
     start () {
-        cc.warn("111");
+
+        //this.uiGp.fillRect(0,0,200,200);
+        //this.uiGp.rect(0,0,100,100);
+        //this.uiGp.strokeColor = cc.color(125,0,0);
+        //this.uiGp.stroke();
+
+        this.gameScene = new GameScene();
+        this.gameScene.initGame();
+        this.gameScene.startGame();
     },
 
-    // update (dt) {},
+    update (dt) {
+        this.gameScene.updateGame();
+        this.gameScene.renderGame(this.uiGp);
+    },
+
+    //var:GameState = {
+    //    STATE_INIT:0,
+    //    STATE_STEP:1,
+    //    STATE_RUN:2,
+    //    STATE_OVER:3
+    //},
+
 });
