@@ -38,31 +38,40 @@
         }
     };
 
-    Shape.prototype.render = function(ctx) {
+    Shape.prototype.render = function(ctx,boardsArr) {
         var shapesArr = this.shapes[this.idx];
         ctx.fillColor = this.color;
         for ( var i = 0; i < 4; i++ ) {
             for ( var j = 0; j < 4; j++ ) {
                 if ( shapesArr[i][j] == 1 ) {
-                    ctx.fillRect((this.x + j) * 20, (this.y + i) * 20, 20, 20);
+                    boardsArr[this.y + i][this.x + j].color = this.color;
+                    boardsArr[this.y + i][this.x + j].active = true;
+                    //ctx.fillRect((this.x + j) * 20, (this.y + i) * 20, 20, 20);
+                    //
+                    //ctx.strokeColor = cc.color(0, 255, 0);
+                    //ctx.stroke();
 
-                    ctx.strokeColor = cc.color(0, 255, 0);
-                    ctx.stroke();
                 }
             }
         }
     };
 
-    Shape.prototype.display = function(ctx, offsetx, offsety) {
+    Shape.prototype.display = function(showBoardsArr, offsetx, offsety) {
         var shapesArr = this.shapes[this.idx];
-        ctx.fillColor = this.color;
+        //ctx.fillColor = this.color;
         for ( var i = 0; i < 4; i++ ) {
             for ( var j = 0; j < 4; j++ ) {
                 if ( shapesArr[i][j] == 1 ) {
-                    ctx.fillRect(offsetx + j * 20, offsety + i * 20, 20, 20);
-
-                    ctx.strokeColor = cc.color(0, 255, 0);
-                    ctx.stroke();
+                    showBoardsArr[i][j].color = this.color;
+                    showBoardsArr[i][j].active = true;
+                    //ctx.fillRect(offsetx + j * 20, offsety + i * 20, 20, 20);
+                    //
+                    //ctx.strokeColor = cc.color(0, 255, 0);
+                    //ctx.stroke();
+                }
+                else {
+                    showBoardsArr[i][j].color = cc.color(255,255,255);
+                    showBoardsArr[i][j].active = false;
                 }
             }
         }
@@ -365,20 +374,26 @@
         return this.bkBoards;
     }
 
-    TetrisUnit.prototype.render = function(ctx) {
+    TetrisUnit.prototype.render = function(ctx,boardsArr) {
 
-        ctx.strokeColor = cc.color(125, 0, 0);
-        ctx.rect(0, 0, 20 * this.col, 20 * this.row);
-        ctx.stroke();
+        //ctx.strokeColor = cc.color(125, 0, 0);
+        //ctx.rect(0, 0, 20 * this.col, 20 * this.row);
+        //ctx.stroke();
 
         for ( var i = 0; i < this.row; i++ ) {
             for (  var j = 0; j < this.col; j++ ) {
                 if ( this.boards[i][j] != 0 ) {
-                    ctx.fillColor = cc.color(0, 125, 0);
-                    ctx.fillRect(j * 20, i * 20, 20, 20);
-
-                    ctx.strokeColor = cc.color(0, 255, 0);
-                    ctx.stroke();
+                    boardsArr[i][j].color = cc.color(0, 125, 0);
+                    boardsArr[i][j].active = true;
+                    //ctx.fillColor = cc.color(0, 125, 0);
+                    //ctx.fillRect(j * 20, i * 20, 20, 20);
+                    //
+                    //ctx.strokeColor = cc.color(0, 255, 0);
+                    //ctx.stroke();
+                }
+                else {
+                    boardsArr[i][j].color = cc.color(255, 255,255);
+                    boardsArr[i][j].active = false;
                 }
             }
         }

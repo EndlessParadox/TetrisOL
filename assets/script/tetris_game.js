@@ -132,38 +132,34 @@
         }
     };
 
-    GameScene.prototype.renderGame = function(ctx) {
+    GameScene.prototype.renderGame = function(ctx,boardsArr,showBoardsArr,score) {
 
-        ctx.fillColor = cc.hexToColor('#ffffff');
-        ctx.fillRect(0, 0, 800, 640);
-
-        ctx.strokeColor = cc.hexToColor('#ff0000');
-        ctx.rect(0, 0, 20 * this.col, 20 * this.row);
-        ctx.stroke();
+        //ctx.fillColor = cc.hexToColor('#ffffff');
+        //ctx.fillRect(0, 0, 800, 640);
 
         if ( this.gameState === GameScene.STATE_INIT ) {
             return;
         }
 
-        this.tetrisUnit.render(ctx);
+        this.tetrisUnit.render(ctx,boardsArr);
 
         if ( this.currentShape != null ) {
-            this.currentShape.render(ctx);
+            this.currentShape.render(ctx,boardsArr);
         }
 
         // *) 绘制傍边的信息条
-        this.drawInfo(ctx);
+        this.drawInfo(ctx,showBoardsArr,score);
 
     };
 
-    GameScene.prototype.drawInfo = function(ctx) {
+    GameScene.prototype.drawInfo = function(ctx,showBoardsArr,score) {
 
         if ( this.gameState === GameState.STATE_INIT ) {
             return;
         }
 
-        ctx.strokeColor = cc.hexToColor('#0000ff');
-        ctx.stroke(210, 0, 100, 200);
+        //ctx.strokeColor = cc.hexToColor('#0000ff');
+        //ctx.stroke(210, 0, 100, 200);
 
         ctx.font = "16px Courier New";
         //设置字体填充颜色
@@ -172,9 +168,10 @@
 
         if ( this.nextShape !== null ) {
             //ctx.fillText("Next:", 220, 18);
-            this.nextShape.display(ctx, 220, 36);
+            this.nextShape.display(showBoardsArr, 220, 36);
         }
 
+        score.string = "Score: " + this.score;
         //ctx.fillText("Score: ", 220, 138);
         //ctx.fillText("  "  + this.score, 220, 156);
 
