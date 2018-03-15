@@ -42,7 +42,7 @@ cc.Class({
 
 
          this.node.on('underAttack', function (event) {
-             this.attackCallBack(event.getUserData().isAI,event.getUserData().line);
+             this.attackCallBack(event.getUserData().isAI,event.getUserData().line,event.getUserData().atk);
              event.stopPropagation();
          },this);
 
@@ -82,7 +82,7 @@ cc.Class({
         }
     },
 
-    attackCallBack:function(isAI,line)
+    attackCallBack:function(isAI,line,atk)
     {
         for(var j = 0;j < this.boards.length; j ++)
         {
@@ -91,7 +91,7 @@ cc.Class({
             {
                 if(board.isAI != isAI)
                 {
-                    board.underAttack(line);
+                    board.underAttack(line,atk);
                 }
             }
         }

@@ -35,7 +35,8 @@ cc.Class({
         isAI: {
             default: false,
             serializable: true
-        }
+        },
+        atk:1,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -174,7 +175,7 @@ cc.Class({
             {
                 this.gameScene.attack = false;
                 var event = new cc.Event.EventCustom('underAttack', true);
-                event.setUserData({isAI:this.isAI,line:this.gameScene.attackLine});
+                event.setUserData({isAI:this.isAI,line:this.gameScene.attackLine,atk:this.atk});
                 this.node.dispatchEvent(event);
             }
         }
@@ -191,9 +192,9 @@ cc.Class({
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     },
 
-    underAttack:function(line)
+    underAttack:function(line,atk)
     {
-        this.gameScene.underAttack(line);
+        this.gameScene.underAttack(line,atk);
     },
 
     onKeyDown: function (event) {

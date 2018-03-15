@@ -166,9 +166,9 @@
 
                     var eliminatedLines = this.tetrisUnit.touchDown(tx, ty, shapeArr);
                     this.updateScore(eliminatedLines);
-                    if(eliminatedLines >= 2) {
+                    if(eliminatedLines >= 1) {
                         this.attack = true;
-                        this.attackLine = eliminatedLines - 1;
+                        this.attackLine = eliminatedLines - 0;
                         //this.tetrisUnit.underAttack(eliminatedLines);
                         //this.node.dispatchEvent( new cc.Event.EventCustom('foobar', true) );
                     }
@@ -187,6 +187,16 @@
                         this.index = -1;
                     }
                     this.nextShape = createShapeFromOrigin(this.shapeList[this.index + 1]);
+
+                    if(this.delayAttack)
+                    {
+                        this.delayAttack = false;
+                        this.tetrisUnit.underAttack(this.delayAttackLine,this.delayAttackAtk);
+                        if(this.isAI) {
+                            var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+                            this.moves = moveAns.action_moves;
+                        }
+                    }
 
                     // *) 判断游戏是否结束
                     if ( this.detectGameOver() ) {
@@ -320,12 +330,10 @@
         return this.tetrisUnit.isOverlay(this.currentShape.x, this.currentShape.y, shapeArr);
     };
 
-    GameScene.prototype.underAttack = function(line){
-        this.tetrisUnit.underAttack(line);
-        if(this.isAI) {
-            var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
-            this.moves = moveAns.action_moves;
-        }
+    GameScene.prototype.underAttack = function(line,atk){
+        this.delayAttack = true;
+        this.delayAttackLine = line;
+        this.delayAttackAtk = atk;
     }
 
     //var canvas = document.getElementById("canvas");

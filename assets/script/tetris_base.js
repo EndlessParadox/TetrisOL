@@ -411,23 +411,32 @@
         }
     }
 
-    TetrisUnit.prototype.underAttack = function(line)
+    TetrisUnit.prototype.underAttack = function(line,atk)
     {
         for ( var i = 0 ; i < this.row - line; i++ ) {
             for (var j = 0; j < this.col; j++) {
-                this.boards[i][j] = this.boards[i + 1][j];
+                this.boards[i][j] = this.boards[i + line][j];
             }
         }
-        for(var m = line; m > 0; m --) {
-            this.underAttackCount ++;
+
+        atk = Math.ceil(Math.random() * atk);
+        var holeArr = new Array(atk);
+        var fullArr = [0,1,2,3,4,5,6,7,8,9];
+        for( var idx = 0; idx < holeArr.length; idx++)
+        {
+            var ran = Math.floor((Math.random() * fullArr.length));
+            holeArr[idx] = fullArr[ran];
+            fullArr.splice(ran,1);
+        }
+        for(var m = this.row - line; m < this.row; m ++) {
+            //this.underAttackCount ++;
             for (var n = 0; n < this.col; n++) {
-                if (this.underAttackCount % 2 == n % 2) {
-                    this.boards[this.row - m][n] = 1;
+                var flag = true;
+                //if (this.underAttackCount % 2 == n % 2) {
+                for(var o = 0; o < holeArr.length ; o ++) {
+                    flag = flag && ( holeArr[o] != n)
                 }
-                else
-                {
-                    this.boards[this.row - m][n] = 0;
-                }
+                this.boards[m][n] = flag ? 1 : 0;
             }
         }
     }
