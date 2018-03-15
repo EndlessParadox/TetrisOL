@@ -1,10 +1,5 @@
-/**
- * Created by renjie on 2015/7/3.
- */
-
 
 (function(window){
-
     // 状态描述
     var GameState = {
         STATE_INIT:0,
@@ -24,8 +19,14 @@
         return new shapeTypes[shapeIdx](4, 0, shapePos, colorTypes[colorIdx]);
     }
 
+    function createShapeFromOrigin(shape)
+    {
+        var shapeTypes = [LShape, JShape, IShape, OShape, TShape, SShape, ZShape];
+        return new shapeTypes[shape.shapeArrIdx](4,0,shape.idx,shape.color);
+    }
+
     // *) 游戏场景的构造
-    function GameScene() {
+    function GameScene(shapeList) {
 
         this.tetrisUnit = new TetrisUnit();
         this.strategy = new AIStrategy();
@@ -39,26 +40,58 @@
         this.timestamp = new Date().getTime();
 
         this.score = 0;
+        this.shapeList = [];
 
+        this.originList = shapeList;
+        for(var i = 0 ; i < this.originList.length; i ++) {
+            this.shapeList.push(createShapeFromOrigin(this.originList[i]));
+        }
+
+        this.index = 0;
+
+        this.attack = false;
+
+        this.attackLine = 0;
+
+        this.isGameOver = false;
+
+        this.level = 1;
+
+        this.startTime = new Date().getTime();
     };
 
     GameScene.prototype.initGame = function() {
         this.tetrisUnit.reset();
+        this.score = 0;
     };
 
-    GameScene.prototype.startGame = function() {
+    GameScene.prototype.startGame = function(isAI) {
         this.gameState = GameState.STATE_STEP;
 
-        this.currentShape = createShape();
-        this.nextShape = createShape();
+        //this.currentShape = createShape();
+        //this.nextShape = createShape();
+        if(this.shapeList.length > 2)
+        {
+            this.currentShape = createShapeFromOrigin(this.shapeList[this.index]);
+            this.nextShape = createShapeFromOrigin(this.shapeList[this.index + 1]);
+        }
+        else {
+            return;
+        }
+
+        this.fastDown = false;
 
         this.score = 0;
 
         this.tetrisUnit.reset();
         this.timestamp = new Date().getTime();
 
-        var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
-        this.moves = moveAns.action_moves;
+        if(isAI) {
+            var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+            this.moves = moveAns.action_moves;
+        }
+
+        this.isAI = isAI;
 
     }
 
@@ -76,24 +109,54 @@
             case 4:
                 this.score += 800;
                 break;
-            default: ;
+            default:
         }
     };
 
-    GameScene.prototype.updateGame = function() {
+    GameScene.prototype.updateGame = function(isAI,moves) {
         // *) 状态判断
         if ( this.gameState === GameState.STATE_INIT ) {
             return;
         }
 
+        if(!isAI)
+        {
+            this.moves = moves;
+        }
+
         var now = new Date().getTime();
-        if ( now - this.timestamp > 500 ) {
+        if(now - this.startTime > 60000)
+        {
+            this.level ++;
+            if(this.level > 3)
+            {
+                this.level = 3;
+            }
+            this.startTime = now;
+        }
+
+        if ( now - this.timestamp > (200 - (this.level - 1)* 30) ) {
             if ( this.currentShape != null ) {
                 if ( this.moves.length > 0 ) {
-                    this.currentShape.x = this.moves[0].x;
-                    this.currentShape.y = this.moves[0].y;
-                    this.currentShape.idx = this.moves[0].idx;
-                    this.moves.splice(0, 1);
+                    if(!isAI)
+                    {
+                        if(!this.fastDown) {
+                            if (this.tetrisUnit.checkAvailable(this.currentShape.x + this.moves[0].x, this.currentShape.y + this.moves[0].y, this.currentShape.shapes[this.currentShape.idx + this.moves[0].idx < 4 ? this.currentShape.idx + this.moves[0].idx : 0])) {
+                                this.currentShape.x += this.moves[0].x;
+                                this.currentShape.y += this.moves[0].y;
+                                this.currentShape.idx = this.currentShape.idx + this.moves[0].idx < 4 ? this.currentShape.idx + this.moves[0].idx : 0
+                            }
+                        }
+                        this.moves.splice(0, 1);
+                    }
+                    else {
+                        if (this.tetrisUnit.checkAvailable(this.moves[0].x,this.moves[0].y,this.currentShape.shapes[this.moves[0].idx])) {
+                            this.currentShape.x = this.moves[0].x;
+                            this.currentShape.y = this.moves[0].y;
+                            this.currentShape.idx = this.moves[0].idx;
+                            this.moves.splice(0, 1);
+                        }
+                    }
                 } else if ( this.detect(ActionType.ACTION_DOWN) ) {
                     this.currentShape.doAction(ActionType.ACTION_DOWN);
                 } else {
@@ -103,18 +166,39 @@
 
                     var eliminatedLines = this.tetrisUnit.touchDown(tx, ty, shapeArr);
                     this.updateScore(eliminatedLines);
+                    if(eliminatedLines >= 2) {
+                        this.attack = true;
+                        this.attackLine = eliminatedLines - 1;
+                        //this.tetrisUnit.underAttack(eliminatedLines);
+                        //this.node.dispatchEvent( new cc.Event.EventCustom('foobar', true) );
+                    }
 
-                    this.currentShape = this.nextShape;
-                    this.nextShape = createShape();
+                    this.currentShape = createShapeFromOrigin(this.shapeList[this.index + 1]);
+                    this.index ++;
+                    //this.nextShape = createShape();
+                    this.fastDown = false;
+                    if(this.index >= this.shapeList.length - 1)
+                    {
+                        this.originList.reverse();
+                        this.shapeList = [];
+                        for(var i = 0 ; i < this.originList.length; i ++) {
+                            this.shapeList.push(createShapeFromOrigin(this.originList[i]));
+                        }
+                        this.index = -1;
+                    }
+                    this.nextShape = createShapeFromOrigin(this.shapeList[this.index + 1]);
 
                     // *) 判断游戏是否结束
                     if ( this.detectGameOver() ) {
-                        alert("Game Over\n you had " + this.score + " points");
-                        this.initGame();
+                        this.isGameOver = true;
+                        //alert("Game Over\n you had " + this.score + " points");
+                        //this.initGame();
                     } else {
                         // *)
-                        var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
-                        this.moves = moveAns.action_moves;
+                        if(isAI) {
+                            var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+                            this.moves = moveAns.action_moves;
+                        }
                     }
 
                 }
@@ -122,15 +206,42 @@
             this.timestamp = now;
         } else {
             if ( this.moves.length > 0 ) {
-                if ( this.moves[0].x === this.currentShape.x
-                    && this.moves[0].y === this.currentShape.y + 1
-                    && this.moves[0].idx === this.currentShape.idx ) {
-                    this.currentShape.y = this.moves[0].y;
-                    this.moves.splice(0, 1);
+                if(!isAI)
+                {
+                    if(this.moves[0].y == 1)
+                    {
+                        if(this.tetrisUnit.checkAvailable(this.currentShape.x + this.moves[0].x, this.currentShape.y + this.moves[0].y,this.currentShape.shapes[this.currentShape.idx + this.moves[0].idx < 4 ? this.currentShape.idx + this.moves[0].idx : 0])) {
+                            this.fastDown = true;
+                            this.currentShape.y++;
+                        }
+                        this.moves.splice(0, 1);
+                    }
+                }
+                else {
+                    //return;
+                    if(this.moves[0].y > this.tetrisUnit.row - (this.level * 5)) {
+                        if (this.tetrisUnit.checkAvailable(this.moves[0].x,this.moves[0].y,this.currentShape.shapes[this.moves[0].idx])) {
+                            if (this.moves[0].x === this.currentShape.x
+                                && this.moves[0].y === this.currentShape.y + 1
+                                && this.moves[0].idx === this.currentShape.idx) {
+                                this.currentShape.y = this.moves[0].y;
+                            }
+                        }
+                        this.moves.splice(0, 1);
+                    }
+                }
+            }
+            else {
+                if(this.fastDown)
+                {
+                    if(this.tetrisUnit.checkAvailable(this.currentShape.x, this.currentShape.y + 1,this.currentShape.shapes[this.currentShape.idx])) {
+                        this.currentShape.y++;
+                    }
                 }
             }
         }
     };
+
 
     GameScene.prototype.renderGame = function(ctx,boardsArr,showBoardsArr,score) {
 
@@ -208,6 +319,14 @@
         var shapeArr = this.currentShape.shapes[this.currentShape.idx];
         return this.tetrisUnit.isOverlay(this.currentShape.x, this.currentShape.y, shapeArr);
     };
+
+    GameScene.prototype.underAttack = function(line){
+        this.tetrisUnit.underAttack(line);
+        if(this.isAI) {
+            var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+            this.moves = moveAns.action_moves;
+        }
+    }
 
     //var canvas = document.getElementById("canvas");
     //var ctx = canvas.getContext("2d");

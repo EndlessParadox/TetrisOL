@@ -1,7 +1,3 @@
-/**
- * Created by renjie on 2015/7/3.
- */
-
 
 (function(window){
 
@@ -13,12 +9,13 @@
         ACTION_DOWN:4
     };
 
-    function Shape(x, y, idx, color, shapes) {
+    function Shape(x, y, idx, color, shapes,shapeArrIdx) {
         this.x = x;
         this.y = y;
         this.idx = idx;
         this.color = color;
         this.shapes = shapes;
+        this.shapeArrIdx = shapeArrIdx;
     };
 
     Shape.prototype.doAction = function(cmd) {
@@ -105,7 +102,7 @@
     ];
 
     function LShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, LShape.SHAPES);
+        Shape.call(this, x, y, idx, color, LShape.SHAPES,0);
     };
     // class LShape extend Shape
     LShape.prototype = new Shape();
@@ -138,7 +135,7 @@
     ];
 
     function JShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, JShape.SHAPES);
+        Shape.call(this, x, y, idx, color, JShape.SHAPES,1);
     };
     JShape.prototype = new Shape();
 
@@ -170,7 +167,7 @@
     ];
 
     function IShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, IShape.SHAPES);
+        Shape.call(this, x, y, idx, color, IShape.SHAPES,2);
     };
     // class IShape extend Shape
     IShape.prototype = new Shape();
@@ -203,7 +200,7 @@
     ];
 
     function OShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, OShape.SHAPES);
+        Shape.call(this, x, y, idx, color, OShape.SHAPES,3);
     };
     // class CShape extend Shape
     OShape.prototype = new Shape();
@@ -237,7 +234,7 @@
     ];
 
     function TShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, TShape.SHAPES);
+        Shape.call(this, x, y, idx, color, TShape.SHAPES,4);
     };
     // class CShape extend Shape
     TShape.prototype = new Shape();
@@ -270,7 +267,7 @@
         ]
     ];
     function SShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, SShape.SHAPES);
+        Shape.call(this, x, y, idx, color, SShape.SHAPES,5);
     };
     // class CShape extend Shape
     SShape.prototype = new Shape();
@@ -303,7 +300,7 @@
         ]
     ];
     function ZShape(x, y, idx, color) {
-        Shape.call(this, x, y, idx, color, ZShape.SHAPES);
+        Shape.call(this, x, y, idx, color, ZShape.SHAPES,6);
     };
     // class CShape extend Shape
     ZShape.prototype = new Shape();
@@ -327,6 +324,8 @@
                 this.bkBoards[i][j] = 0;
             }
         }
+
+        this.underAttackCount = 0;
     }
 
     TetrisUnit.prototype.reset = function() {
@@ -379,7 +378,6 @@
         //ctx.strokeColor = cc.color(125, 0, 0);
         //ctx.rect(0, 0, 20 * this.col, 20 * this.row);
         //ctx.stroke();
-
         for ( var i = 0; i < this.row; i++ ) {
             for (  var j = 0; j < this.col; j++ ) {
                 if ( this.boards[i][j] != 0 ) {
@@ -408,6 +406,27 @@
                         continue;
                     }
                     this.boards[ty + i][tx + j] = 1;
+                }
+            }
+        }
+    }
+
+    TetrisUnit.prototype.underAttack = function(line)
+    {
+        for ( var i = 0 ; i < this.row - line; i++ ) {
+            for (var j = 0; j < this.col; j++) {
+                this.boards[i][j] = this.boards[i + 1][j];
+            }
+        }
+        for(var m = line; m > 0; m --) {
+            this.underAttackCount ++;
+            for (var n = 0; n < this.col; n++) {
+                if (this.underAttackCount % 2 == n % 2) {
+                    this.boards[this.row - m][n] = 1;
+                }
+                else
+                {
+                    this.boards[this.row - m][n] = 0;
                 }
             }
         }
