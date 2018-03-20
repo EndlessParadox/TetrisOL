@@ -34,12 +34,7 @@ cc.Class({
 
 
      onLoad () {
-         this.shapeList = [];
-         for(var n = 0; n < 50; n ++)
-         {
-             this.shapeList.push(this.createShape());
-         }
-
+         var self = this;
 
          this.node.on('underAttack', function (event) {
              this.attackCallBack(event.getUserData().isAI,event.getUserData().line,event.getUserData().atk);
@@ -51,17 +46,32 @@ cc.Class({
              this.reset();
              event.stopPropagation();
          },this);
+
+         cc.loader.loadRes('atlas/atlas1', cc.SpriteAtlas, function (error, atlas) {
+             self.loadAtlasCallBack(atlas);
+         });
      },
 
 
 
     start () {
+    },
+
+    loadAtlasCallBack:function(atlas)
+    {
+        this.atlas = atlas;
+        this.shapeList = [];
+        for(var n = 0; n < 50; n ++)
+        {
+            this.shapeList.push(this.createShape(atlas));
+        }
+
         for(var i = 0; i < this.boards.length; i ++)
         {
             var board = this.boards[i].getComponent("MainBoard");
             if(board != null)
             {
-                board.startGame(this.shapeList);
+                board.startGame(this.shapeList,atlas);
             }
         }
     },
@@ -70,14 +80,14 @@ cc.Class({
         this.shapeList = [];
         for(var n = 0; n < 50; n ++)
         {
-            this.shapeList.push(this.createShape());
+            this.shapeList.push(this.createShape(this.atlas));
         }
         for(var i = 0; i < this.boards.length; i ++)
         {
             var board = this.boards[i].getComponent("MainBoard");
             if(board != null)
             {
-                board.reset(this.shapeList);
+                board.reset(this.shapeList,this.atlas);
             }
         }
     },
@@ -97,15 +107,15 @@ cc.Class({
         }
     },
 
-    createShape:function() {
+    createShape:function(atlas) {
         var shapeTypes = [LShape, JShape, IShape, OShape, TShape, SShape, ZShape];
-        var colorTypes = [cc.color(255,0,0), cc.color(0,255,0), cc.color(0,0,255), cc.color(255,100,255)]
+        var colorTypes = ["fangkuai06","fangkuai07", "fangkuai05","fangkuai01","fangkuai02","fangkuai03","fangkuai04"]
 
         var shapeIdx = Math.floor(Math.random() * 100) % shapeTypes.length;
         var shapePos = Math.floor(Math.random() * 100) % 4;
-        var colorIdx = Math.floor(Math.random() * 100) % colorTypes.length;
+        //var colorIdx = Math.floor(Math.random() * 100) % colorTypes.length;
 
-        return new shapeTypes[shapeIdx](4, 0, shapePos, colorTypes[colorIdx]);
+        return new shapeTypes[shapeIdx](4, 0, shapePos, colorTypes[shapeIdx],atlas);
     }
 
     // update (dt) {},

@@ -10,7 +10,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "ItemBase",
+    "_name": "BoomEff",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -19,18 +19,24 @@
     "_components": [
       {
         "__id__": 2
+      },
+      {
+        "__id__": 3
+      },
+      {
+        "__id__": 4
       }
     ],
     "_prefab": {
-      "__id__": 3
+      "__id__": 5
     },
     "_id": "",
     "_opacity": 255,
     "_color": {
       "__type__": "cc.Color",
-      "r": 253,
-      "g": 248,
-      "b": 248,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_cascadeOpacityEnabled": true,
@@ -41,8 +47,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 42,
-      "height": 42
+      "width": 518,
+      "height": 54
     },
     "_rotationX": 0,
     "_rotationY": 0,
@@ -61,6 +67,24 @@
     "groupIndex": 0
   },
   {
+    "__type__": "cc.Animation",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "_defaultClip": {
+      "__uuid__": "76cb2bcb-428a-4519-9d4c-b4aa11547d44"
+    },
+    "_clips": [
+      {
+        "__uuid__": "76cb2bcb-428a-4519-9d4c-b4aa11547d44"
+      }
+    ],
+    "playOnLoad": false
+  },
+  {
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
@@ -69,10 +93,10 @@
     },
     "_enabled": true,
     "_spriteFrame": {
-      "__uuid__": "ca625c61-92e1-4379-95c3-cef233643c21"
+      "__uuid__": "c0ccccbb-4e07-4eaf-933c-8b5212ed1928"
     },
     "_type": 0,
-    "_sizeMode": 0,
+    "_sizeMode": 1,
     "_fillType": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
@@ -84,8 +108,18 @@
     "_isTrimmedMode": true,
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_atlas": {
-      "__uuid__": "de42a72d-dec1-40e8-bc58-601a022b68ee"
+    "_atlas": null
+  },
+  {
+    "__type__": "9734dXkqgNBsbN94z4gKbdr",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "amina": {
+      "__id__": 2
     }
   },
   {
@@ -94,9 +128,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "44d7361d-563f-464b-9e68-bdcea479e8d6"
+      "__id__": 0
     },
-    "fileId": "86a8dManJDkbAS7uPTyt9z",
+    "fileId": "9bZGLgCCBFrYS67q9TFoi5",
     "sync": false
   }
 ]

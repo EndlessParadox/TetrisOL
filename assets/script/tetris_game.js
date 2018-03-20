@@ -22,13 +22,13 @@
     function createShapeFromOrigin(shape)
     {
         var shapeTypes = [LShape, JShape, IShape, OShape, TShape, SShape, ZShape];
-        return new shapeTypes[shape.shapeArrIdx](4,0,shape.idx,shape.color);
+        return new shapeTypes[shape.shapeArrIdx](4,0,shape.idx,shape.color,shape.atlas);
     }
 
     // *) 游戏场景的构造
-    function GameScene(shapeList) {
+    function GameScene(shapeList ,atlas) {
 
-        this.tetrisUnit = new TetrisUnit();
+        this.tetrisUnit = new TetrisUnit(atlas);
         this.strategy = new AIStrategy();
         this.moves = [];
 
@@ -113,7 +113,7 @@
         }
     };
 
-    GameScene.prototype.updateGame = function(isAI,moves) {
+    GameScene.prototype.updateGame = function(isAI,moves,lockDown,boomEff,board) {
         // *) 状态判断
         if ( this.gameState === GameState.STATE_INIT ) {
             return;
@@ -135,7 +135,7 @@
             this.startTime = now;
         }
 
-        if ( now - this.timestamp > (200 - (this.level - 1)* 30) ) {
+        if ( now - this.timestamp > (300 - (this.level - 1)* 30) ) {
             if ( this.currentShape != null ) {
                 if ( this.moves.length > 0 ) {
                     if(!isAI)
@@ -157,18 +157,22 @@
                             this.moves.splice(0, 1);
                         }
                     }
-                } else if ( this.detect(ActionType.ACTION_DOWN) ) {
+                    //if(this.detect(ActionType.ACTION_DOWN))
+                    //    this.currentShape.doAction(ActionType.ACTION_DOWN);
+                }
+                else if ( this.detect(ActionType.ACTION_DOWN) ) {
                     this.currentShape.doAction(ActionType.ACTION_DOWN);
                 } else {
                     var tx = this.currentShape.x;
                     var ty = this.currentShape.y;
                     var shapeArr = this.currentShape.shapes[this.currentShape.idx];
+                    var color = this.currentShape.color;
 
-                    var eliminatedLines = this.tetrisUnit.touchDown(tx, ty, shapeArr);
+                    var eliminatedLines = this.tetrisUnit.touchDown(tx, ty, shapeArr,color,boomEff,board,isAI);
                     this.updateScore(eliminatedLines);
-                    if(eliminatedLines >= 1) {
+                    if(eliminatedLines >= 2) {
                         this.attack = true;
-                        this.attackLine = eliminatedLines - 0;
+                        this.attackLine = eliminatedLines - 1;
                         //this.tetrisUnit.underAttack(eliminatedLines);
                         //this.node.dispatchEvent( new cc.Event.EventCustom('foobar', true) );
                     }
@@ -221,7 +225,7 @@
                     if(this.moves[0].y == 1)
                     {
                         if(this.tetrisUnit.checkAvailable(this.currentShape.x + this.moves[0].x, this.currentShape.y + this.moves[0].y,this.currentShape.shapes[this.currentShape.idx + this.moves[0].idx < 4 ? this.currentShape.idx + this.moves[0].idx : 0])) {
-                            this.fastDown = true;
+                            this.fastDown = lockDown;
                             this.currentShape.y++;
                         }
                         this.moves.splice(0, 1);
@@ -292,7 +296,8 @@
             this.nextShape.display(showBoardsArr, 220, 36);
         }
 
-        score.string = "Score: " + this.score;
+        score.string = this.level;
+        //score.string = "Score: " + this.score;
         //ctx.fillText("Score: ", 220, 138);
         //ctx.fillText("  "  + this.score, 220, 156);
 
